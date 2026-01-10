@@ -93,7 +93,7 @@ const MIJN_CUSTOM_TEKST = "(async () => {\n" +
 
     // Link naar GitHub (pas de URL hieronder aan)
     btn.onclick = () => {
-        window.open('https://sn0wwfox.github.io/SomBox/', '_blank');
+        window.open('https://github.com/Sn0wwFox/SomBox', '_blank');
     };
 })();
 // --- EINDE ZWEVENDE KNOP LOGICA ---
@@ -386,4 +386,5 @@ function processCode() {
 }
 
 window.onload = () => { initParticles(); updateHome(); };
+
 
