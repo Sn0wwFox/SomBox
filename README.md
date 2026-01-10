@@ -86,7 +86,7 @@ Wat de **gebruiker** ziet:
 
 Je klikt op de knop of voert de code uit.
 
-Het scherm wordt direct zwart met een SomBox-logo en een Gif ([de "Blocker"](https://github.com/Sn0wwFox/SomBox/edit/Sn0wwFox-1/README.md#%EF%B8%8F-waarom-die-blocker)).
+Het scherm wordt direct zwart met een SomBox-logo en een Gif ([de "Blocker"](https://github.com/Sn0wwFox/SomBox/tree/Sn0wwFox-1?tab=readme-ov-file#%EF%B8%8F-waarom-die-blocker)).
 
 Na ongeveer een seconde verschijnt er een pop-up (prompt) met een lange reeks willekeurige tekens of als je de extensie gebruikt wordt het gelijk automatisch gekopieert.
 
@@ -94,7 +94,7 @@ Nadat je op 'OK' klikt, word je automatisch teruggestuurd naar je rooster.
 
 Wat er op de **achtergrond** gebeurt:
 
-Blocker: Het script plaatst het zwarte wachtscherm over alles heen. Bij [🛡️ Waarom die "Blocker"?](https://github.com/Sn0wwFox/SomBox/edit/Sn0wwFox-1/README.md#%EF%B8%8F-waarom-die-blocker) wordt uitgelegd waarom dit nodig is.
+Blocker: Het script plaatst het zwarte wachtscherm over alles heen. Bij [🛡️ Waarom die "Blocker"?](https://github.com/Sn0wwFox/SomBox/tree/Sn0wwFox-1?tab=readme-ov-file#%EF%B8%8F-waarom-die-blocker) wordt uitgelegd waarom dit nodig is.
 
 Activatie: Het script zoekt in de wirwar van SomToday-elementen (de Shadow DOM) naar de knop waar "Cijfers" op staat en geeft daar een virtuele 'klik' op.
 
