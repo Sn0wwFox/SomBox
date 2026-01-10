@@ -19,7 +19,7 @@ const MIJN_CUSTOM_TEKST = "(async () => {\n" +
     "    // Blocker tonen\n" +
     "    const b = document.body.appendChild(document.createElement('div'));\n" +
     "    b.style = \"position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9e9;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#00f2ff;font-family:sans-serif;\";\n" +
-    "    b.innerHTML = `<img src=\"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTZqdWV0N2thcXpzOG5xMmxsZjEzYmRrMW42ZWU3amlueGZ1cnltdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/um2kBnfo55iW4ZH1Fa/giphy.gif\" style=\"width:200px\"><h1>SomBox...</h1>`;\n" +
+    "    b.innerHTML = `<img src=\"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTZqdWV0N2thcXPreparationzOG5xMmxsZjEzYmRrMW42ZWU3amlueGZ1cnltdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/um2kBnfo55iW4ZH1Fa/giphy.gif\" style=\"width:200px\"><h1>SomBox...</h1>`;\n" +
     "\n" +
     "    tab.click();\n" +
     "\n" +
@@ -41,6 +41,61 @@ const MIJN_CUSTOM_TEKST = "(async () => {\n" +
     "        window.location.href = '/rooster';\n" +
     "    }, 800);\n" +
     "})();";
+
+// --- HIERONDER DE NIEUWE ZWEVENDE KNOP LOGICA ---
+(function injectHelpButton() {
+    const btn = document.createElement('div');
+    btn.id = 'sombox-help-btn';
+    btn.innerHTML = '?';
+    
+    // Styling met animatie
+    const style = document.createElement('style');
+    style.innerHTML = `
+        #sombox-help-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 50px;
+            height: 50px;
+            background: #00f2ff;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 999999;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.6);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            user-select: none;
+            animation: sombox-pulse 2s infinite;
+        }
+        #sombox-help-btn:hover {
+            transform: scale(1.2) rotate(15deg);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 1);
+            background: #fff;
+        }
+        #sombox-help-btn:active {
+            transform: scale(0.9);
+        }
+        @keyframes sombox-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 242, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); }
+        }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(btn);
+
+    // Link naar GitHub (pas de URL hieronder aan)
+    btn.onclick = () => {
+        window.open('https://github.com/JOUW_GITHUB_GEBRUIKER/REPO', '_blank');
+    };
+})();
+// --- EINDE ZWEVENDE KNOP LOGICA ---
 
 // UPDATE HOME SCREEN
 function updateHome() {
@@ -73,15 +128,19 @@ function updateHome() {
     }
 
     if (alleCijfers.length === 0) {
-        info.innerText = "DATABASE EMPTY: ADD CASES TO START";
+        if(info) info.innerText = "DATABASE EMPTY: ADD CASES TO START";
         if(btn) btn.style.display = 'none';
     } else if (currentIdx < alleCijfers.length) {
-        info.innerText = `READY TO INITIALIZE: CASE #${currentIdx + 1}`;
-        info.style.color = "#00f2ff";
+        if(info) {
+            info.innerText = `READY TO INITIALIZE: CASE #${currentIdx + 1}`;
+            info.style.color = "#00f2ff";
+        }
         if(btn) btn.style.display = 'block';
     } else {
-        info.innerText = "COMPLETE DATASET RECOVERED";
-        info.style.color = "#ff0055";
+        if(info) {
+            info.innerText = "COMPLETE DATASET RECOVERED";
+            info.style.color = "#ff0055";
+        }
         if(btn) btn.style.display = 'none';
     }
 }
@@ -140,10 +199,10 @@ function triggerFlash() {
 window.addEventListener('keyup', (e) => { if (e.code === 'Space') canClick = true; });
 
 window.addEventListener('keydown', (e) => {
-    const homeVisible = document.getElementById('home-screen').style.display !== 'none';
-    const spamVisible = document.getElementById('spam-screen').style.display === 'flex';
+    const homeVisible = document.getElementById('home-screen')?.style.display !== 'none';
+    const spamVisible = document.getElementById('spam-screen')?.style.display === 'flex';
     const proceedBtn = document.getElementById('back-btn');
-    const isDone = proceedBtn.style.display === 'block';
+    const isDone = proceedBtn?.style.display === 'block';
 
     if (e.code === 'Space') {
         e.preventDefault();
@@ -176,7 +235,7 @@ function revealGrade() {
     res.innerText = cijfer;
     res.style.display = 'block';
     res.style.color = cijfer >= 5.5 ? '#00f2ff' : '#ff0055';
-    if (cijfer >= 5.5) confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
+    if (cijfer >= 5.5 && window.confetti) confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
 
     currentIdx++;
     localStorage.setItem('unboxedCount', currentIdx);
@@ -204,38 +263,6 @@ function addManualRow() {
     const div = document.createElement('div'); div.className = 'manual-row';
     div.innerHTML = '<input type="text" placeholder="VAKNAAM" class="m-v" style="flex: 2;"> <input type="text" placeholder="CIJFER" class="m-c" style="flex: 1;">';
     document.getElementById('manual-rows').appendChild(div);
-}
-
-function processCode() {
-    const val = document.getElementById('sombox-code').value.trim();
-    const filterDateValue = document.getElementById('date-filter').value;
-
-    if (!val) return alert("NO CODE DETECTED");
-
-    try {
-        const decoded = JSON.parse(decodeURIComponent(escape(atob(val))));
-        let filtered = decoded;
-
-        if (filterDateValue) {
-            const minDate = new Date(filterDateValue);
-            minDate.setHours(0, 0, 0, 0);
-
-            filtered = decoded.filter(item => {
-                const [d, m, y] = item.d.split('-');
-                const itemDate = new Date(y, m - 1, d);
-                return itemDate >= minDate;
-            });
-        }
-
-        tempData = filtered.map(i => ({
-            vak: i.v.toUpperCase(),
-            cijfer: parseFloat(i.c.replace(',', '.'))
-        }));
-
-        if (tempData.length === 0) alert("NO CASES FOUND AFTER THIS DATE");
-        else showConfirm(tempData.length);
-
-    } catch(e) { alert("CRITICAL ERROR: CODE INVALID"); }
 }
 
 function processManual() {
@@ -281,14 +308,6 @@ function copyCustomText() {
     }
 }
 
-function updateDateLabel(input) {
-    const status = document.getElementById('date-status');
-    if (input.value) {
-        const [y, m, d] = input.value.split('-');
-        status.innerText = `FILTER: SINCE ${d}-${m}-${y}`;
-    } else status.innerText = "";
-}
-
 function fullReset() {
     if (confirm("WARNING: PERMANENTLY WIPE DATABASE? ALL UNBOXED DATA WILL BE LOST.")) {
         localStorage.clear();
@@ -317,7 +336,6 @@ function initParticles() {
     });
 }
 
-// Laat zien welke datum gekozen is
 function updateDateLabel(input) {
     const status = document.getElementById('date-status');
     if (input.value) {
@@ -328,32 +346,27 @@ function updateDateLabel(input) {
     }
 }
 
-// De aangepaste processCode functie die de datumfilter toepast
 function processCode() {
     const val = document.getElementById('sombox-code').value.trim();
-    const filterDateValue = document.getElementById('date-filter').value; // Pakt YYYY-MM-DD
+    const filterDateValue = document.getElementById('date-filter').value;
 
     if (!val) return alert("NO CODE DETECTED");
 
     try {
-        // Decodeer de Base64 data van Somtoday
         const decoded = JSON.parse(decodeURIComponent(escape(atob(val))));
         let filtered = decoded;
 
-        // FILTER LOGICA
         if (filterDateValue) {
             const selectedDate = new Date(filterDateValue);
             selectedDate.setHours(0, 0, 0, 0);
 
             filtered = decoded.filter(item => {
-                // Somtoday datum is DD-MM-YYYY
                 const [d, m, y] = item.d.split('-');
                 const itemDate = new Date(y, m - 1, d);
                 return itemDate >= selectedDate;
             });
         }
 
-        // Zet de gefilterde cases om voor de unboxer
         tempData = filtered.map(i => ({
             vak: i.v.toUpperCase(),
             cijfer: parseFloat(i.c.replace(',', '.'))
