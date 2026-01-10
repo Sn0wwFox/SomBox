@@ -1,192 +1,142 @@
-let alleCijfers = JSON.parse(localStorage.getItem('sombox_grades')) || [];
-let currentIdx = parseInt(localStorage.getItem('unboxedCount')) || 0;
-let tempData = [];
 
-const track = document.getElementById('spinner-track');
-const extraPool = ["WISKUNDE", "NEDERLANDS", "ENGELS", "DUITS", "BIOLOGIE", "NATUURKUNDE", "ECONOMIE", "SCHEIKUNDE", "GESCHIEDENIS", "GYM"];
-
-let spamGoal = 0;
-let clicks = 0;
-let canClick = true;
-let inputLocked = false; // Nieuwe beveiliging tegen te snel klikken
-const MIN_SPAM = 15;
-const MAX_SPAM = 30;
-
-const MIJN_CUSTOM_TEKST = "(async () => { /* ... je bestaande Somtoday script ... */ })();";
-
-// --- ZWEVENDE KNOP LOGICA ---
-(function injectHelpButton() {
-    if (document.getElementById('sombox-help-btn')) return;
-    const btn = document.createElement('div');
-    btn.id = 'sombox-help-btn';
-    btn.innerHTML = '?';
-    const style = document.createElement('style');
-    style.innerHTML = `
-        #sombox-help-btn { position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px; background: #00f2ff; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: 24px; cursor: pointer; z-index: 999999; box-shadow: 0 0 15px rgba(0, 242, 255, 0.6); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); user-select: none; animation: sombox-pulse 2s infinite; }
-        #sombox-help-btn:hover { transform: scale(1.2) rotate(15deg); background: #fff; }
-        @keyframes sombox-pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
-    `;
-    document.head.appendChild(style);
-    document.body.appendChild(btn);
-    btn.onclick = () => window.open('https://github.com/JOUW_GITHUB_GEBRUIKER/REPO', '_blank');
-})();
-
-function lockInput(ms = 1000) {
-    inputLocked = true;
-    setTimeout(() => { inputLocked = false; }, ms);
+:root {
+    --cyan: #00f2ff;
+    --purple: #bc13fe;
+    --pink: #ff0055;
+    --dark: #050508;
 }
 
-// UPDATE HOME SCREEN
-function updateHome() {
-    const info = document.getElementById('case-info');
-    const btn = document.getElementById('main-unbox-btn');
-    const statsGrid = document.getElementById('stats-grid');
-    const barFill = document.getElementById('overall-bar-fill');
-    const progText = document.getElementById('progress-text');
-
-    if (barFill && alleCijfers.length > 0) {
-        const percentage = (currentIdx / alleCijfers.length) * 100;
-        barFill.style.width = `${percentage}%`;
-        progText.innerText = `${currentIdx} / ${alleCijfers.length} CASES COLLECTED`;
-    }
-
-    if (statsGrid) {
-        statsGrid.innerHTML = '';
-        alleCijfers.slice(0, currentIdx).forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'stat-card';
-            const color = item.cijfer >= 5.5 ? '#00f2ff' : '#ff0055';
-            card.style.borderColor = color;
-            card.innerHTML = `<span class="subj">${item.vak.toUpperCase()}</span><span class="grad" style="color: ${color}">${item.cijfer}</span>`;
-            statsGrid.appendChild(card);
-        });
-    }
-
-    if (alleCijfers.length === 0) {
-        if(info) info.innerText = "DATABASE EMPTY";
-        if(btn) btn.style.display = 'none';
-    } else if (currentIdx < alleCijfers.length) {
-        if(info) { info.innerText = `READY: CASE #${currentIdx + 1}`; info.style.color = "#00f2ff"; }
-        if(btn) btn.style.display = 'block';
-    } else {
-        if(info) { info.innerText = "DATA RECOVERED"; info.style.color = "#ff0055"; }
-        if(btn) btn.style.display = 'none';
-    }
+body, html {
+    margin: 0; padding: 0;
+    background-color: var(--dark);
+    color: white;
+    font-family: 'Quantico', sans-serif;
+    height: 100vh; overflow: hidden;
 }
 
-// UNBOXING LOGICA
-function startRolling() {
-    if (currentIdx >= alleCijfers.length || inputLocked) return;
-    lockInput(1000); // Kan niet direct weer klikken
-    const winVak = alleCijfers[currentIdx].vak.toUpperCase();
-    track.innerHTML = '';
-    track.style.transition = 'none';
-    track.style.transform = 'translateX(0)';
+#particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-    for(let i = 0; i < 85; i++) {
-        const div = document.createElement('div');
-        div.className = 'item';
-        div.innerText = (i === 70) ? winVak : extraPool[Math.floor(Math.random() * extraPool.length)];
-        track.appendChild(div);
-    }
+.screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 10; pointer-events: none;
+}
+.screen > * { pointer-events: all; }
 
-    document.getElementById('home-screen').style.display = 'none';
-    document.getElementById('roll-screen').style.display = 'flex';
+.logo {
+    font-family: 'Orbitron'; font-size: 6rem; font-weight: 900;
+    text-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan);
+    margin: 0; letter-spacing: 15px;
+}
+.logo span { color: var(--cyan); }
 
-    setTimeout(() => {
-        const itemW = 161;
-        const stopAt = (70 * itemW) - (window.innerWidth / 2) + (itemW / 2);
-        track.style.transition = 'transform 6s cubic-bezier(0.05, 0, 0.1, 1)';
-        track.style.transform = `translateX(-${stopAt}px)`;
-        setTimeout(triggerFlash, 6000);
-    }, 100);
+/* Basis Knop */
+.unbox-btn {
+    background: rgba(0, 242, 255, 0.05);
+    border: 2px solid var(--cyan);
+    color: var(--cyan);
+    padding: 18px 50px;
+    font-family: 'Orbitron';
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--cyan);
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    display: flex; align-items: center; justify-content: center;
+    outline: none;
+}
+.unbox-btn:hover {
+    transform: scale(1.05);
 }
 
-function triggerFlash() {
-    const flash = document.getElementById('flashbang');
-    flash.classList.add('flash-active');
-    spamGoal = Math.floor(Math.random() * (MAX_SPAM - MIN_SPAM + 1)) + MIN_SPAM;
-    clicks = 0;
+/* Specifieke Knop Kleuren & Glows */
+.btn-pink { border-color: var(--pink) !important; color: var(--pink) !important; box-shadow: 0 0 10px rgba(255, 0, 85, 0.2) !important; }
+.btn-pink:hover { box-shadow: 0 0 25px var(--pink) !important; background: rgba(255, 0, 85, 0.1) !important; }
 
-    setTimeout(() => {
-        document.getElementById('roll-screen').style.display = 'none';
-        document.getElementById('spam-screen').style.display = 'flex';
-        document.getElementById('won-subject').innerText = alleCijfers[currentIdx].vak.toUpperCase();
-        document.getElementById('final-grade').style.display = 'none';
-        document.getElementById('back-btn').style.display = 'none';
-        document.getElementById('main-box').style.display = 'flex';
-    }, 150);
+.btn-cyan { border-color: var(--cyan) !important; color: var(--cyan) !important; box-shadow: 0 0 10px rgba(0, 242, 255, 0.2) !important; }
+.btn-cyan:hover { box-shadow: 0 0 25px var(--cyan) !important; background: rgba(0, 242, 255, 0.1) !important; }
+
+/* De Paarse Add Cases & Kalender Knop */
+.btn-purple {
+    border-color: var(--purple) !important;
+    color: var(--purple) !important;
+    box-shadow: 0 0 15px rgba(188, 19, 254, 0.3) !important;
+}
+.btn-purple:hover {
+    box-shadow: 0 0 30px var(--purple) !important;
+    background: rgba(188, 19, 254, 0.1) !important;
 }
 
-// KEYBOARD HANDLERS
-window.addEventListener('keyup', (e) => { if (e.code === 'Space') canClick = true; });
+/* Spinner & Game UI */
+.spinner-outer { width: 100%; border-top: 2px solid var(--cyan); border-bottom: 2px solid var(--cyan); background: rgba(0,0,0,0.9); }
+.spinner-container { position: relative; width: 100%; height: 180px; overflow: hidden; }
+.pointer { position: absolute; left: 50%; width: 4px; height: 100%; background: var(--pink); z-index: 100; box-shadow: 0 0 20px var(--pink); }
+.track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; }
+.item { min-width: 160px; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); text-transform: uppercase; font-size: 0.9rem; border-right: 1px solid rgba(0, 242, 255, 0.1); }
 
-window.addEventListener('keydown', (e) => {
-    if (inputLocked) return; // Blokkeer alle keyboard input tijdens de pauze
+.subject-title { font-family: 'Orbitron'; font-size: 2.5rem; color: var(--cyan); margin-bottom: 20px; text-shadow: 0 0 15px var(--cyan); }
+.spam-box { width: 200px; height: 200px; border: 4px solid var(--cyan); border-radius: 15px; font-size: 6rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px var(--cyan); background: rgba(0,0,0,0.5); cursor: pointer; }
+.shaking { animation: shake 0.08s infinite; }
+@keyframes shake { 0%{transform:translate(3px,3px)} 50%{transform:translate(-3px,-3px)} 100%{transform:translate(3px,-3px)} }
 
-    const homeVisible = document.getElementById('home-screen')?.style.display !== 'none';
-    const spamVisible = document.getElementById('spam-screen')?.style.display === 'flex';
-    const proceedBtn = document.getElementById('back-btn');
-    const isDone = proceedBtn?.style.display === 'block';
+.reward-text { font-family: 'Orbitron'; font-size: 10rem; font-weight: 900; margin: 20px 0; }
+.flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; opacity: 0; z-index: 1000; pointer-events: none; }
+.flash-active { animation: flasher 1s forwards; }
+@keyframes flasher { 0%{opacity:0} 20%{opacity:1} 100%{opacity:0} }
 
-    if (e.code === 'Space') {
-        e.preventDefault();
-        if (!canClick) return;
-        canClick = false;
-        if (homeVisible) startRolling();
-        else if (spamVisible && isDone) { lockInput(800); location.reload(); }
-        else if (spamVisible && !isDone) doSpam();
-    }
+/* Stats & Progress */
+.stats-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 40px; max-width: 80%; max-height: 300px; overflow-y: auto; }
+.stat-card { background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.3); padding: 10px 20px; border-radius: 5px; text-align: center; min-width: 100px; }
+.stat-card .subj { font-size: 0.7rem; color: #aaa; margin-bottom: 5px; display: block; }
+.stat-card .grad { font-family: 'Orbitron'; font-size: 1.5rem; }
 
-    // SNELTOETSEN S EN F
-    if (e.key.toLowerCase() === 's' && !homeVisible && !isDone) {
-        revealGrade(); // Skip naar cijfer
-    }
-    if (e.key.toLowerCase() === 'f') {
-        if (currentIdx < alleCijfers.length) {
-            currentIdx = alleCijfers.length;
-            localStorage.setItem('unboxedCount', currentIdx);
-        }
-        location.reload(); // Finish direct
-    }
-});
+.overall-progress { margin-bottom: 20px; width: 300px; text-align: center; }
+.progress-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; }
+#overall-bar-fill { height: 100%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); transition: width 1s ease-out; }
 
-function doSpam() {
-    const box = document.getElementById('main-box');
-    if (clicks < spamGoal) {
-        box.classList.add('shaking');
-        clicks++;
-        let p = clicks / spamGoal;
-        box.style.boxShadow = `0 0 ${p * 80}px #00f2ff`;
-        if (clicks >= spamGoal) revealGrade();
-        setTimeout(() => box.classList.remove('shaking'), 100);
-    }
+/* Subtiele Reset Knop (Ghost Button) */
+.reset-link {
+    margin-top: 50px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #333;
+    padding: 8px 20px;
+    font-family: 'Orbitron';
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+.reset-link:hover {
+    background: rgba(188, 19, 254, 0.05);
+    border-color: rgba(188, 19, 254, 0.2);
+    color: var(--purple);
+    box-shadow: 0 0 15px rgba(188, 19, 254, 0.1);
 }
 
-function revealGrade() {
-    lockInput(1200); // Beveiliging: 1.2 sec geen spatiebalk acceptatie na reveal
-    const box = document.getElementById('main-box');
-    if(box) box.style.display = 'none';
-    
-    const cijfer = alleCijfers[currentIdx].cijfer;
-    const res = document.getElementById('final-grade');
-    res.innerText = cijfer;
-    res.style.display = 'block';
-    res.style.color = cijfer >= 5.5 ? '#00f2ff' : '#ff0055';
-    
-    if (cijfer >= 5.5 && window.confetti) confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
-
-    currentIdx++;
-    localStorage.setItem('unboxedCount', currentIdx);
-    
-    const btn = document.getElementById('back-btn');
-    btn.style.display = 'block';
-    btn.innerText = (currentIdx < alleCijfers.length) ? "PROCEED [SPACE]" : "FINISH [SPACE]";
+/* Modal specifieke verbeteringen */
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
-
-// ... de rest van je modal/import functies ...
-function openModal() { document.getElementById('import-modal').style.display = 'flex'; }
-function closeModal() { document.getElementById('import-modal').style.display = 'none'; resetModal(); }
-function confirmAndLoad() { localStorage.setItem('sombox_grades', JSON.stringify(tempData)); localStorage.setItem('unboxedCount', 0); location.reload(); }
-
-window.onload = () => { if(window.initParticles) initParticles(); updateHome(); };
+.modal-content textarea {
+    display: block;
+    margin: 0 auto 15px auto;
+}
+.date-container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+#date-status {
+    font-family: 'Orbitron';
+    text-align: center;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px var(--purple);
+    opacity: 0.8;
+    margin-top: 10px;
+    height: 15px;
+    color: var(--purple);
+}
