@@ -1,4 +1,6 @@
 # 📦 SomBox
+Website link: [https://sn0wwfox.github.io/SomBox/](https://sn0wwfox.github.io/SomBox/)
+
 **SomBox** is een moderne visualisatie-tool die jouw SomToday-data omzet in een prachtig, begrijpelijk dashboard. Geen saaie lijsten meer, maar direct inzicht in je voortgang.
 
 Ontwikkeld door: Deze volledige applicatie, de scraping-logica en de browser-extensie zijn ontwikkeld door **Gemini** (Google AI) in nauwe samenwerking met de maker: [Sn0wwFox](https://github.com/Sn0wwFox). Alle bestanden zijn **openbaar** beschikbaar op deze GitHub repository.
