@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>SOMBOX | Grade Unboxer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Quantico:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        /* Popup Styling */
+        #import-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 10000;
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #050508; border: 2px solid var(--cyan);
+            padding: 40px; width: 450px; text-align: center;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); position: relative;
+        }
+        .close-modal {
+            position: absolute; top: 15px; right: 20px;
+            color: white; cursor: pointer; font-size: 1.5rem; opacity: 0.5;
+        }
+        .close-modal:hover { opacity: 1; }
+
+        textarea {
+            width: 100%; height: 100px; background: rgba(255,255,255,0.05); border: 1px solid #333;
+            color: var(--cyan); padding: 12px; margin-bottom: 15px; resize: none;
+            font-family: 'Quantico', sans-serif; display: block;
+        }
+        textarea:focus { border-color: var(--cyan); outline: none; }
+
+        .manual-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .manual-row input {
+            background: rgba(255,255,255,0.05); border: 1px solid #333;
+            color: white; padding: 10px; font-family: 'Quantico', sans-serif;
+        }
+
+        #confirm-step { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div id="particles-js"></div>
+
+<div id="import-modal">
+    <div class="modal-content" style="display: flex; flex-direction: column; align-items: center;">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h2 id="modal-title" style="font-family:'Orbitron'; font-size: 1.4rem; margin-bottom: 25px; color: var(--cyan);">SYSTEM DATA IMPORT</h2>
+
+        <div id="input-steps" style="width: 100%;">
+            <div id="code-section" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <textarea id="sombox-code" placeholder="PLAK HIER DE GEGENEREERDE CODE..."></textarea>
+
+                <div style="display: flex; gap: 12px; align-items: stretch; margin-bottom: 15px; height: 60px; width: 100%;">
+                    <button id="btn-copy-custom" onclick="copyCustomText()" class="unbox-btn btn-pink" style="width: 70px; flex-shrink: 0; font-size: 1.4rem; padding: 0;">C</button>
+
+                    <button class="unbox-btn btn-cyan" style="flex-grow: 1; font-size: 0.9rem; letter-spacing: 2px; padding: 0;" onclick="processCode()">INITIALIZE SYSTEM</button>
+
+                    <div class="date-container" style="position: relative; width: 70px; flex-shrink: 0;">
+                        <button class="unbox-btn btn-purple" style="width: 100%; height: 100%; font-size: 1.4rem; padding: 0;">🗓</button>
+                        <input type="date" id="date-filter" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="updateDateLabel(this)">
+                    </div>
+                </div>
+
+                <p id="date-status" style="font-size: 0.8rem; color: var(--purple); margin-bottom: 15px; height: 15px; font-family: 'Orbitron'; font-weight: bold;"></p>
+
+                <p onclick="toggleInput()" style="color: #444; cursor: pointer; text-decoration: underline; font-size: 0.8rem; letter-spacing: 1px;">SWITCH TO MANUAL INPUT</p>
+            </div>
+
+            <div id="manual-section" style="display:none; width: 100%;">
+                <div id="manual-rows" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px;">
+                    <div class="manual-row">
+                        <input type="text" placeholder="VAKNAAM" class="m-v" style="flex: 2;">
+                        <input type="text" placeholder="CIJFER" class="m-c" style="flex: 1;">
+                    </div>
+                </div>
+                <button onclick="addManualRow()" style="background:none; border:none; color:var(--cyan); cursor:pointer; margin: 10px 0; font-size: 0.8rem; font-family:'Orbitron';">+ ADD SUBJECT</button>
+                <button class="unbox-btn btn-cyan" style="width:100%;" onclick="processManual()">VERIFY DATA</button>
+                <p onclick="toggleInput()" style="color: #444; cursor: pointer; text-decoration: underline; font-size: 0.8rem; letter-spacing: 1px; margin-top: 20px;">BACK TO CODE IMPORT</p>
+            </div>
+        </div>
+
+        <div id="confirm-step" style="display:none; width: 100%;">
+            <p id="confirm-msg" style="font-size: 1.2rem; margin: 30px 0; letter-spacing: 2px; color: var(--cyan); font-family: 'Orbitron';"></p>
+            <button class="unbox-btn btn-cyan" style="width:100%;" onclick="confirmAndLoad()">START UNBOXING</button>
+            <button onclick="resetModal()" style="background:none; border:none; color:var(--pink); cursor:pointer; margin-top:20px; text-decoration:underline; font-family:'Quantico'; font-size: 0.8rem;">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<div id="home-screen" class="screen">
+    <h1 class="logo">SOM<span>BOX</span></h1>
+
+    <div class="overall-progress">
+        <div id="progress-text" style="font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 5px;">0 / 0 CASES COLLECTED</div>
+        <div class="progress-bar-bg">
+            <div id="overall-bar-fill"></div>
+        </div>
+    </div>
+
+    <div id="case-info" style="font-family: 'Orbitron'; letter-spacing: 2px; margin: 20px 0;">SYSTEM ONLINE</div>
+
+    <div style="display: flex; gap: 15px; margin-top: 20px;">
+        <button class="unbox-btn" onclick="startRolling()" id="main-unbox-btn">UNBOX NEXT CIJFER</button>
+        <button class="unbox-btn" onclick="openModal()" style="border-color: var(--purple); box-shadow: 0 0 15px var(--purple); color: var(--purple);">ADD CASES</button>
+    </div>
+
+    <div id="stats-grid" class="stats-grid"></div>
+
+    <button onclick="fullReset()" class="reset-link">DATABASE RESET</button>
+</div>
+
+<div id="roll-screen" class="screen" style="display:none;">
+    <div class="spinner-outer">
+        <div class="spinner-container">
+            <div class="pointer"></div>
+            <div id="spinner-track" class="track"></div>
+        </div>
+    </div>
+</div>
+
+<div id="spam-screen" class="screen" style="display:none;">
+    <h2 id="won-subject" class="subject-title">SUBJECT</h2>
+    <div class="case-wrapper">
+        <div class="spam-box" id="main-box" onclick="doSpam()">📦</div>
+    </div>
+    <div id="final-grade" class="reward-text">--</div>
+    <button id="back-btn" class="unbox-btn" onclick="location.reload()" style="display:none; margin-top: 30px;">PROCEED</button>
+</div>
+
+<div id="flashbang" class="flash"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
