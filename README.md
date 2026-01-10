@@ -151,3 +151,15 @@ Voorkomt spoilers: Om de data te vinden moet de scraper naar het cijfer tablad. 
 - manifest.json: De configuratie voor de browser.
 
 - content.js: Het script dat de "📦" knop injecteert.
+
+
+---
+
+## ⚖️ Licentie & Disclaimer
+
+Dit project is gelicentieerd onder de **GNU General Public License v3.0**. 
+
+### Disclaimer
+* **Eigen Risico:** SomBox is een onafhankelijke tool en is niet gelieerd aan, geautoriseerd door, of op enige wijze officieel verbonden met SomToday. Het gebruik van de scraper en het dashboard is volledig op eigen risico.
+* **Geen Garantie:** De software wordt geleverd "as is", zonder enige vorm van garantie. De makers zijn niet aansprakelijk voor eventuele fouten in de cijferberekeningen, tijdelijke blokkades op SomToday of andere indirecte schade.
+* **Privacy:** SomBox is gebouwd met een 'Privacy-First' gedachte. Er wordt geen data verzameld of verstuurd naar externe servers. Jouw data blijft in jouw browser.
