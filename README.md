@@ -26,9 +26,11 @@ Er zijn **drie** manieren om je cijfers te importeren. Beide maken gebruik van d
 ### Optie A: De SomBox Extensie (Aanbevolen)
 De extensie is de meest gebruiksvriendelijke manier. Het integreert een fysieke knop direct in de SomToday-interface.
 
-1.  **Installatie**: Download de extension map van deze GitHub. Ga naar chrome://extensions/, zet 'Ontwikkelaarsmodus' aan en klik op 'Uitgepakt laden'. Selecteer de map.
+1.  **Installatie**: Download de bestanden uit de extension map van deze GitHub en doe ze in een folder, of download een volledige folder via [https://download-directory.github.io](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FSn0wwFox%2FSomBox%2Ftree%2Fmain%2Fchrome).
 
-2.  **Gebruik**: Zodra je inlogt op SomToday, zie je rechtsonderin het scherm een paarse knop: 📦.
+2.  Ga naar [chrome://extensions/](chrome://extensions/), zet 'Ontwikkelaarsmodus' aan en klik op 'Uitgepakt laden'. Selecteer de map.
+
+3.  **Gebruik**: Zodra je inlogt op SomToday, zie je rechtsonderin het scherm een paarse knop: 📦.
 
 Actie: Klik op de knop. De extensie klikt automatisch op 'Cijfers', scant de data en geeft je direct de import-code.
 
