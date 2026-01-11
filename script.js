@@ -385,6 +385,31 @@ function processCode() {
     }
 }
 
+// LUISTEREN NAAR DATA VAN DE EXTENSIE
+window.addEventListener("message", function(event) {
+    // We checken of de data wel voor Sombox bedoeld is
+    if (event.data && event.data.type === "SOMBOX_IMPORT") {
+        console.log("Systeem: Data ontvangen van extensie!");
+
+        const codeInput = document.getElementById('sombox-code');
+        
+        if (codeInput) {
+            // 1. Plak de code in het tekstveld
+            codeInput.value = event.data.data;
+            
+            // 2. Open de modal (zodat de gebruiker het ziet)
+            openModal();
+            
+            // 3. Start direct het verwerken van de code
+            // We gebruiken een kleine timeout zodat de modal tijd heeft om te animeren
+            setTimeout(() => {
+                processCode();
+            }, 100);
+        }
+    }
+}, false);
+
 window.onload = () => { initParticles(); updateHome(); };
+
 
 
